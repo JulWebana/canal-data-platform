@@ -1,139 +1,103 @@
 """
-lambda_tmdb.py
---------------
-Fonction AWS Lambda qui récupère les données de films et séries
-depuis l'API TMDB, puis les stocke en format JSON brut dans S3.
+
+Fonction AWS Lambda d’ingestion : récupère les données de films et séries depuis l’API TMDB et les stocke en JSON brut dans un bucket S3.
 
 Déclenchement : manuel ou via EventBridge (scheduler)
 Destination   : S3 bucket, dossiers raw/movies/ et raw/series/
+
 """
 
-import json          # Pour sérialiser les données en JSON
-import os            # Pour lire les variables d'environnement
-import boto3         # SDK AWS pour interagir avec S3
-import urllib.request  # Pour faire des requêtes HTTP sans dépendance externe
-from datetime import datetime  # Pour horodater les fichiers déposés dans S3
+# Import des modules nécessaires :
+
+import json                               # sérialise les données en JSON
+import os                                 # lit les variables d'environnement
+import boto3                              # SDK AWS pour interagir avec S3
+import urllib.request                     # fait des requêtes HTTP sans dépendance externe
+from datetime import datetime, timezone   # horodate les fichiers déposés dans S3
 
 
-# ------------------------------------------------------------------ #
-# CONFIGURATION                                                        #
-# ------------------------------------------------------------------ #
+# CONFIGURATION                                                        
 
-# Clé API TMDB — injectée via variable d'environnement Lambda
-# (ne jamais hardcoder une clé dans le code !)
-TMDB_API_KEY = os.environ["TMDB_API_KEY"]
+TMDB_API_KEY = os.environ["TMDB_API_KEY"]                       # Clé API TMDB. injectée via variable d'environnement Lambda
 
-# Nom du bucket S3 où seront déposées les données brutes
-S3_BUCKET = os.environ["S3_BUCKET"]
+S3_BUCKET = os.environ["S3_BUCKET"]                             #  # Nom du bucket S3 où seront déposées les données brutes 
 
-# URL de base de l'API TMDB v3
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 
-# Langue des résultats (fr-FR pour coller au contexte Canal+)
 LANGUAGE = "fr-FR"
 
-# Nombre de pages à récupérer par catégorie (1 page = 20 résultats)
-MAX_PAGES = 3
+MAX_PAGES = 3                                                   # Nombre de pages à récupérer par catégorie. 1 page = 20 résultats
 
 
-# ------------------------------------------------------------------ #
-# CLIENT S3                                                            #
-# ------------------------------------------------------------------ #
 
-# Initialisation du client S3 (boto3 utilise automatiquement
-# les credentials du rôle IAM attaché à la Lambda)
-s3_client = boto3.client("s3")
+# CLIENT S3                                                            
 
 
-# ------------------------------------------------------------------ #
-# FONCTIONS UTILITAIRES                                                #
-# ------------------------------------------------------------------ #
+s3_client = boto3.client("s3")                                  # Initialisation du client S3 utilisé pour uploader les données brutes (JSON) dans le bucket S3.
 
-def fetch_tmdb(endpoint: str, page: int = 1) -> dict:
-    """
-    Appelle un endpoint de l'API TMDB et retourne la réponse JSON.
 
-    Args:
-        endpoint : chemin de l'API, ex: "/movie/popular"
-        page     : numéro de page pour la pagination
+# FONCTIONS UTILITAIRES                                                
 
-    Returns:
-        dict contenant la réponse JSON de l'API
-    """
-    # Construction de l'URL complète avec clé API, langue et page
-    url = (
+
+# 1. Fonction qui appelle un endpoint de l'API TMDB et retourne la réponse JSON.  endpoint = chemin de l'API et page = numéro de page pour la pagination
+
+def fetch_tmdb(endpoint: str, page: int = 1) -> dict:         
+
+    url = (                                                     # Construction de l'URL complète avec clé API, langue et page
         f"{TMDB_BASE_URL}{endpoint}"
         f"?api_key={TMDB_API_KEY}"
         f"&language={LANGUAGE}"
         f"&page={page}"
     )
 
-    # Ouverture de la requête HTTP GET
-    with urllib.request.urlopen(url) as response:
-        # Lecture et décodage de la réponse en UTF-8
-        raw = response.read().decode("utf-8")
+    with urllib.request.urlopen(url) as response:                  # Ouverture de la requête HTTP GET
 
-    # Conversion de la chaîne JSON en dictionnaire Python
-    return json.loads(raw)
+        raw = response.read().decode("utf-8")                      # Lecture et décodage de la réponse en UTF-8
 
+    return json.loads(raw)                                         # Conversion de la chaîne JSON en dictionnaire Python
+
+
+
+# 2. Fonction qui sérialise un dictionnaire Python en JSON et le dépose dans S3. data   = dictionnaire Python à sauvegarder.  s3_key = chemin complet dans le bucket S3
 
 def save_to_s3(data: dict, s3_key: str) -> None:
-    """
-    Sérialise un dictionnaire Python en JSON et le dépose dans S3.
 
-    Args:
-        data   : dictionnaire Python à sauvegarder
-        s3_key : chemin complet dans le bucket S3
-                 ex: "raw/movies/popular/2026-05-06_page1.json"
-    """
-    # Conversion du dictionnaire en chaîne JSON bien formatée
-    json_body = json.dumps(data, ensure_ascii=False, indent=2)
+    json_body = json.dumps(data, ensure_ascii=False, indent=2)          # Conversion du dictionnaire en chaîne JSON bien formatée
 
-    # Envoi vers S3 via put_object
-    s3_client.put_object(
-        Bucket=S3_BUCKET,           # Nom du bucket cible
-        Key=s3_key,                 # Chemin du fichier dans le bucket
-        Body=json_body.encode("utf-8"),  # Contenu encodé en bytes
-        ContentType="application/json",  # Métadonnée MIME type
+    s3_client.put_object(                                               # Envoi vers S3 via put_object
+        Bucket=S3_BUCKET,                                       
+        Key=s3_key,                                                     # Chemin du fichier dans le bucket
+        Body=json_body.encode("utf-8"),                                 
+        ContentType="application/json",                                 # Métadonnée MIME type
     )
 
+
     # Log pour le suivi dans CloudWatch
+
     print(f"[S3] Fichier déposé : s3://{S3_BUCKET}/{s3_key}")
 
 
-def ingest_category(endpoint: str, s3_prefix: str, label: str) -> int:
-    """
-    Récupère plusieurs pages d'un endpoint TMDB et les stocke dans S3.
 
-    Args:
-        endpoint  : endpoint TMDB, ex: "/movie/popular"
-        s3_prefix : préfixe S3, ex: "raw/movies/popular"
-        label     : nom lisible pour les logs, ex: "Films populaires"
+# 3. Function qui récupère plusieurs pages d'un endpoint TMDB et les stocke dans S3. 
 
-    Returns:
-        Nombre total de résultats ingérés
-    """
-    # Date du jour pour partitionner les fichiers par date
-    today = datetime.utcnow().strftime("%Y-%m-%d")
+def ingest_category(endpoint: str, s3_prefix: str, label: str) -> int:             # label = nom lisible pour les logs
 
-    total_results = 0  # Compteur de résultats ingérés
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")                        # Date du jour en UTC pour partitionner les fichiers dans S3
 
-    # Boucle sur les pages (de 1 à MAX_PAGES inclus)
-    for page in range(1, MAX_PAGES + 1):
+    total_results = 0                                                              # Compteur de résultats ingérés
+
+    for page in range(1, MAX_PAGES + 1):                                           # Boucle sur les pages (de 1 à MAX_PAGES inclus)
 
         print(f"[TMDB] Récupération : {label} — page {page}/{MAX_PAGES}")
 
-        # Appel à l'API TMDB pour cette page
-        data = fetch_tmdb(endpoint, page=page)
+  
+        data = fetch_tmdb(endpoint, page=page)                                     # Appel à l'API TMDB pour cette page
 
-        # Construction du chemin S3 avec partitionnement par date
-        # Structure : raw/movies/popular/2026-05-06/page_1.json
-        s3_key = f"{s3_prefix}/{today}/page_{page}.json"
+        s3_key = f"{s3_prefix}/{today}/page_{page}.json"                           # Construction du chemin S3 avec partitionnement par date. Structure : raw/movies/popular/2026-05-06/page_1.json
 
-        # Sauvegarde dans S3
-        save_to_s3(data, s3_key)
+        save_to_s3(data, s3_key)                                                   # Sauvegarde dans S3 du JSON brut de cette page      
 
-        # Comptage des résultats de cette page
+     
         page_count = len(data.get("results", []))
         total_results += page_count
 
@@ -142,26 +106,17 @@ def ingest_category(endpoint: str, s3_prefix: str, label: str) -> int:
     return total_results
 
 
-# ------------------------------------------------------------------ #
-# HANDLER PRINCIPAL (point d'entrée Lambda)                           #
-# ------------------------------------------------------------------ #
 
-def lambda_handler(event: dict, context) -> dict:
-    """
-    Point d'entrée de la fonction Lambda.
-    AWS appelle automatiquement cette fonction lors du déclenchement.
+# HANDLER PRINCIPAL (point d'entrée Lambda)                           
 
-    Args:
-        event   : données de l'événement déclencheur (non utilisé ici)
-        context : contexte d'exécution Lambda (non utilisé ici)
+def lambda_handler(event: dict, context) -> dict:                                   #  Point d'entrée de la fonction Lambda. AWS appelle automatiquement cette fonction lors du déclenchement.
+                                                                                    #  event = données de l'événement déclencheur. context : contexte d'exécution Lambda 
+                                                                                    #  dict = avec statusCode HTTP et un message de résumé
 
-    Returns:
-        dict avec statusCode HTTP et un message de résumé
-    """
     print("[START] Début de l'ingestion TMDB")
 
-    # Dictionnaire pour accumuler les stats d'ingestion
-    stats = {}
+  
+    stats = {}                                                                      # Dictionnaire pour accumuler les stats d'ingestion
 
     # ---- FILMS ---------------------------------------------------- #
 
@@ -197,11 +152,10 @@ def lambda_handler(event: dict, context) -> dict:
 
     # ---- RÉSUMÉ --------------------------------------------------- #
 
-    # Calcul du total toutes catégories confondues
-    total = sum(stats.values())
+    total = sum(stats.values())                                                      # Calcul du total toutes catégories confondues                                             
+
     print(f"[END] Ingestion terminée — {total} résultats au total : {stats}")
 
-    # Retour standard Lambda (compatible API Gateway si besoin)
     return {
         "statusCode": 200,
         "body": json.dumps({
