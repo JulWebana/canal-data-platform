@@ -1,12 +1,9 @@
-# =================================================================== #
-#  .gitignore — Canal Data Platform                                   #
-#  Fichiers à ne JAMAIS commiter sur GitHub                           #
-# =================================================================== #
+
+#  .gitignore — Canal Data Platform                                   
 
 
-# ------------------------------------------------------------------ #
-# SECRETS & CREDENTIALS — CRITIQUE                                    #
-# ------------------------------------------------------------------ #
+# SECRETS & CREDENTIALS — CRITIQUE                                    
+
 
 # Fichier Terraform contenant les clés API et secrets
 terraform/terraform.tfvars
@@ -17,7 +14,7 @@ terraform/*.tfvars
 .env.*
 *.env
 
-# Credentials AWS (ne doivent jamais quitter ta machine)
+# Credentials AWS 
 .aws/
 credentials
 
@@ -28,32 +25,30 @@ credentials
 *.pfx
 
 
-# ------------------------------------------------------------------ #
-# TERRAFORM                                                            #
-# ------------------------------------------------------------------ #
+
+# TERRAFORM                                                            
+
 
 # Dossier généré par terraform init (provider binaries)
-# Très lourd (~500Mo), inutile à versionner
+
 **/.terraform/
 .terraform/
 
-# Fichiers d'état Terraform — contiennent des infos sensibles sur
-# ton infrastructure (IPs, ARNs, parfois des secrets en clair !)
+# Fichiers d'état Terraform — contiennent des infos sensibles 
 *.tfstate
 *.tfstate.*
 *.tfstate.backup
 
-# Fichier de lock des providers (peut être commité selon les équipes,
-# on le garde ici pour simplifier)
+# Fichier de lock des providers 
+
 .terraform.lock.hcl
 
 # Plan Terraform généré localement
 *.tfplan
 
 
-# ------------------------------------------------------------------ #
-# PYTHON                                                               #
-# ------------------------------------------------------------------ #
+
+# PYTHON                                                               
 
 # Cache bytecode Python (généré automatiquement à l'exécution)
 __pycache__/
@@ -84,19 +79,19 @@ coverage.xml
 .ipynb_checkpoints/
 
 
-# ------------------------------------------------------------------ #
-# AWS LAMBDA                                                           #
-# ------------------------------------------------------------------ #
+
+# AWS LAMBDA                                                           
+
 
 # ZIP de déploiement Lambda (généré par deploy_lambda.sh)
-# Inutile à versionner, se régénère à chaque déploiement
+
 *.zip
 ingestion/ingestion.zip
 
 
-# ------------------------------------------------------------------ #
-# DBT (Jour 3)                                                         #
-# ------------------------------------------------------------------ #
+
+# DBT                                                      
+
 
 # Dossier généré par dbt run (artefacts compilés et résultats)
 dbt/target/
@@ -108,9 +103,8 @@ dbt/logs/
 dbt/profiles.yml
 
 
-# ------------------------------------------------------------------ #
-# AIRFLOW (Jour 4)                                                     #
-# ------------------------------------------------------------------ #
+# AIRFLOW                                                
+
 
 # Base de données SQLite locale d'Airflow
 airflow.db
@@ -125,9 +119,8 @@ airflow.cfg
 airflow/airflow.cfg
 
 
-# ------------------------------------------------------------------ #
-# SYSTÈME & ÉDITEURS                                                   #
-# ------------------------------------------------------------------ #
+
+# SYSTÈME & ÉDITEURS                                                   
 
 # MacOS
 .DS_Store
@@ -155,9 +148,8 @@ Desktop.ini
 *.swo
 
 
-# ------------------------------------------------------------------ #
-# DIVERS                                                               #
-# ------------------------------------------------------------------ #
+
+# DIVERS                                                               
 
 # Fichiers de sortie temporaires
 output.json
