@@ -1,37 +1,37 @@
-# 🎬 Canal Data Platform
+# Canal Data Platform
 
 Pipeline de données end-to-end sur AWS inspiré du contexte Canal+.
 Ingestion de données TMDB → Transformation → Lineage Tracking.
 
-## 🏗️ Architecture globale
+## Architecture globale
 
 ```
 TMDB API
    │
    ▼
-AWS Lambda (Python)          ← Jour 1 ✅
+AWS Lambda (Python)          
    │  Ingestion des films/séries
    ▼
-Amazon S3 (raw/)             ← Jour 1 ✅
+Amazon S3 (raw/)            
    │  Stockage JSON brut
    ▼
-AWS Glue (PySpark)           ← Jour 2
+AWS Glue (PySpark)           
    │  Nettoyage & transformation
    ▼
-Amazon Redshift Serverless   ← Jour 2
+Amazon Redshift Serverless  
    │  Data Warehouse
    ▼
-DBT (SQL models)             ← Jour 3
+DBT (SQL models)           
    │  Couche analytique
    ▼
-Apache Airflow (DAGs)        ← Jour 4
+Apache Airflow (DAGs)      
    │  Orchestration
    ▼
-OpenLineage + Marquez        ← Jour 4
+OpenLineage + Marquez       
    Data Lineage Tracking
 ```
 
-## 📁 Structure du projet
+## Structure du projet
 
 ```
 canal-data-platform/
@@ -40,16 +40,14 @@ canal-data-platform/
 │   ├── lambda_tmdb.py        # Fonction Lambda d'ingestion TMDB
 │   ├── test_local.py         # Tests unitaires locaux
 │   └── deploy_lambda.sh      # Script de déploiement
-├── glue/                     # Jour 2
-├── dbt/                      # Jour 3
-├── dags/                     # Jour 4
+├── glue/                  
+├── dbt/                     
+├── dags/                  
 └── terraform/
     ├── main.tf               # Provider + variables + outputs
     ├── s3.tf                 # Bucket S3 raw data
     └── iam.tf                # Rôle IAM Lambda + politique S3
 ```
-
-## 🚀 Démarrage rapide — Jour 1
 
 ### Prérequis
 - AWS CLI configuré (`aws configure`)
@@ -66,9 +64,9 @@ cd canal-data-platform
 echo 'tmdb_api_key = "ta_clé_ici"' > terraform/terraform.tfvars
 ```
 
-### 2. Tester en local AVANT de déployer
+### 2. Test en local avant de déployer
 ```bash
-export TMDB_API_KEY="ta_clé_ici"
+export TMDB_API_KEY="clé_ici"
 export S3_BUCKET="canal-data-platform-raw"
 
 cd ingestion
@@ -106,15 +104,6 @@ aws s3 ls s3://canal-data-platform-raw/raw/ --recursive
 | Python 3.12 | Code Lambda |
 | TMDB API | Source de données films/séries |
 
-## 💰 Coûts AWS estimés (projet complet)
-
-| Service | Estimation |
-|---------|-----------|
-| S3 | ~0€ (free tier) |
-| Lambda | ~0€ (free tier) |
-| Glue | ~1-2€ |
-| Redshift Serverless | ~3-5€ |
-| **Total** | **< 10€** |
 
 ---
-*Projet réalisé dans le cadre de la préparation à un entretien Data Engineer.*
+*Projet réalisé dans le cadre de ma monté en compétence en Data Engineering.*
