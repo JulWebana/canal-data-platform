@@ -1,12 +1,5 @@
-"""
 
-Script de test LOCAL de la Lambda TMDB. Il Permet de valider le code AVANT de déployer sur AWS, sans coûts et sans avoir besoin de zipper/déployer.
-
-Usage :
-    export TMDB_API_KEY="ta_clé_ici"
-    export S3_BUCKET="canal-data-platform-raw"
-    python ingestion/test_local.py
-"""
+# Script de test LOCAL de la Lambda TMDB. Il Permet de valider le code AVANT de déployer sur AWS, sans coûts et sans avoir besoin de zipper/déployer.
 
 import os                                                                 # Pour lire les variables d'environnement
 import json                                                               # Pour afficher les résultats proprement
