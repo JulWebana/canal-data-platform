@@ -1,0 +1,33 @@
+
+# Fichier de configuration principal du projet DBT.
+# Ce fichier définit le nom du projet, la version, et le comportement des modèles.
+
+name: canal_data_platform                     
+version: '1.0.0'                              
+config-version: 2                             
+
+profile: canal_data_platform                  # Nom du profil de connexion à Redshift
+
+# Ici nous allons définir les chemins vers chaque type de fichier. Ainsi dbt saura où les trouver.
+
+model-paths: ["models"]                       # Dossier contenant les modèles SQL
+analysis-paths: ["analyses"]                  # Dossier contenant les analyses ad-hoc
+test-paths: ["tests"]                         # Dossier contenant les tests personnalisés
+seed-paths: ["seeds"]                         # Dossier contenant les fichiers CSV de référence
+macro-paths: ["macros"]                       # Dossier contenant les macros Jinja
+snapshot-paths: ["snapshots"]                 # Dossier contenant les snapshots
+
+clean-targets:                                # Dossiers supprimés par la commande dbt clean
+  - "target"                                  # Dossier des modèles compilés
+  - "dbt_packages"                            # Dossier des packages dbt installés
+
+models:
+  canal_data_platform:                        # Nom du projet 
+
+    staging:                                  # Configuration des modèles dans models/staging/
+      +materialized: view                     # ici j'indique que les modèles staging sont des vues SQL 
+      +schema: staging                        # Ils s'écrivent dans le schéma staging de Redshift
+
+    mart:                                  
+      +materialized: table                   
+      +schema: mart                           # ici j'indique les modèles mart s'écrivent dans le schéma mart de Redshift

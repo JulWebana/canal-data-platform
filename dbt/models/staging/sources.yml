@@ -1,0 +1,51 @@
+
+# Ce fichier déclare les sources de données externes utilisées par dbt.
+# Les sources correspondent aux tables chargées par le job Glue dans Redshift.
+
+version: 2
+
+sources:
+  - name: staging                                                  
+    schema: staging                                                     # Schéma Redshift où se trouvent les tables sources
+    description: "Tables chargées par le job Glue depuis S3"       
+
+    tables:
+      - name: stg_movies                                                # Table des films chargée par Glue
+        description: "Films populaires et top rated récupérés depuis l'API TMDB"
+        columns:
+          - name: id
+            description: "Identifiant unique TMDB du film"
+            tests:
+              - not_null                                           # Test dbt : la colonne ne doit jamais être vide
+              - unique                                             # Test dbt : chaque id doit être unique
+
+          - name: title
+            description: "Titre du film"
+            tests:
+              - not_null                                           # Le titre ne doit jamais être vide
+
+          - name: vote_average
+            description: "Note moyenne des utilisateurs TMDB entre 0 et 10"
+
+          - name: ingested_at
+            description: "Date d'ingestion par la Lambda"
+
+      - name: stg_series                                           # Table des séries chargée par Glue
+        description: "Séries populaires et top rated récupérées depuis l'API TMDB"
+        columns:
+          - name: id
+            description: "Identifiant unique TMDB de la série"
+            tests:
+              - not_null                                          
+              - unique                                            
+
+          - name: title
+            description: "Nom de la série"
+            tests:
+              - not_null                                      
+
+          - name: vote_average
+            description: "Note moyenne des utilisateurs TMDB entre 0 et 10"
+
+          - name: ingested_at
+            description: "Date d'ingestion par la Lambda"
