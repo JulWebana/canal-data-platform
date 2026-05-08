@@ -4,7 +4,6 @@
 
 # Bucket S3 principal                                                 
 
-
 resource "aws_s3_bucket" "raw_data" {
  
   bucket = var.s3_bucket_name
@@ -17,7 +16,6 @@ resource "aws_s3_bucket" "raw_data" {
     ManagedBy   = "terraform"
   }
 }
-
 
 
 # Versioning                                                          
