@@ -2,7 +2,7 @@
 # Création et configuration du bucket S3 qui recevra toutes les données brutes ingérées depuis TMDB.
 
 
-# BUCKET S3 PRINCIPAL                                                  
+# Bucket S3 principal                                                 
 
 
 resource "aws_s3_bucket" "raw_data" {
@@ -20,7 +20,7 @@ resource "aws_s3_bucket" "raw_data" {
 
 
 
-# VERSIONING                                                          
+# Versioning                                                          
 
 
 resource "aws_s3_bucket_versioning" "raw_data_versioning" {                           # Active le versioning sur le bucket. chaque fichier écrasé conserve ses versions précédentes.
@@ -32,7 +32,7 @@ resource "aws_s3_bucket_versioning" "raw_data_versioning" {                     
 }
 
 
-# CHIFFREMENT                                                          
+# Chiffrement                                                          
 
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "raw_data_encryption" {       # Active le chiffrement côté serveur (SSE) avec une clé AWS gérée (SSE-S3).
@@ -47,7 +47,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "raw_data_encrypti
 }
 
 
-# BLOCAGE DE L'ACCÈS PUBLIC                                            
+# Blocage de l'accès publique                                            
 
 
 resource "aws_s3_bucket_public_access_block" "raw_data_block" {                           # Bloque tout accès public au bucket.
@@ -60,7 +60,7 @@ resource "aws_s3_bucket_public_access_block" "raw_data_block" {                 
 }
 
 
-# LIFECYCLE — NETTOYAGE AUTOMATIQUE                                    
+# Lifecicle - nettoyage automatique                                   
 
 
 resource "aws_s3_bucket_lifecycle_configuration" "raw_data_lifecycle" {                  # Règle de cycle de vie : supprime automatiquement les données brutes après 90 jours pour maîtriser les coûts S3.
