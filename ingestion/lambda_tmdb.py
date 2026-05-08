@@ -1,4 +1,5 @@
 """
+Lambda = ingestion brute  
 
 Fonction AWS Lambda d’ingestion : récupère les données de films et séries depuis l’API TMDB et les stocke en JSON brut dans un bucket S3.
 
