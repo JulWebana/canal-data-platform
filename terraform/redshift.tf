@@ -65,12 +65,14 @@ resource "aws_iam_role_policy_attachment" "glue_s3" {
 }
 
 
-# S3 — Dossier temporaire pour Glue
+# S3 - Dossier temporaire pour Glue
 
 resource "aws_s3_object" "glue_tmp" {
   bucket  = var.s3_bucket_name                                                 # Bucket existant créé dans s3.tf
   key     = "glue-tmp/"                                                        # Dossier temporaire utilisé par Glue lors du chargement dans Redshift
   content = ""                                                                 # Objet vide. crée juste le dossier
+  depends_on = [aws_s3_bucket.raw_data]                                        # Attend que le bucket soit créé avant d'uploader
+
 }
 
 
@@ -82,7 +84,7 @@ resource "aws_s3_object" "glue_script" {
   key    = "glue-scripts/transform_job.py"                                     # Chemin du script dans S3
   source = "../glue/transform_job.py"                                          # Chemin local du script Python
   etag   = filemd5("../glue/transform_job.py")                                 # Hash du fichier pour détecter les changements
-
+  depends_on = [aws_s3_bucket.raw_data]
 }
 
 
