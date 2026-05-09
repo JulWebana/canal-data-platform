@@ -1,8 +1,5 @@
 
-#  .gitignore — Canal Data Platform                                   
-
-
-# SECRETS & CREDENTIALS — CRITIQUE                                    
+# Secrets & Credentials - Critique                                    
 
 
 # Fichier Terraform contenant les clés API et secrets
@@ -25,9 +22,7 @@ credentials
 *.pfx
 
 
-
 # TERRAFORM                                                            
-
 
 # Dossier généré par terraform init (provider binaries)
 
@@ -45,7 +40,6 @@ credentials
 
 # Plan Terraform généré localement
 *.tfplan
-
 
 
 # PYTHON                                                               
@@ -79,9 +73,7 @@ coverage.xml
 .ipynb_checkpoints/
 
 
-
 # AWS LAMBDA                                                           
-
 
 # ZIP de déploiement Lambda (généré par deploy_lambda.sh)
 
@@ -89,23 +81,20 @@ coverage.xml
 ingestion/ingestion.zip
 
 
-
 # DBT                                                      
-
-
 # Dossier généré par dbt run (artefacts compilés et résultats)
+
 dbt/target/
 dbt/dbt_packages/
 dbt/logs/
 
 # Profil DBT contenant les credentials Redshift
 # (normalement dans ~/.dbt/profiles.yml, pas dans le projet)
+
 dbt/profiles.yml
 
 
 # AIRFLOW                                                
-
-
 # Base de données SQLite locale d'Airflow
 airflow.db
 airflow/airflow.db
@@ -117,7 +106,6 @@ airflow/logs/
 # Fichier de config Airflow généré localement
 airflow.cfg
 airflow/airflow.cfg
-
 
 
 # SYSTÈME & ÉDITEURS                                                   
@@ -146,8 +134,6 @@ Desktop.ini
 # Vim
 *.swp
 *.swo
-
-
 
 # DIVERS                                                               
 
