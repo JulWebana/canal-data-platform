@@ -1,0 +1,85 @@
+
+# Ce script lance Airflow et Marquez (interface OpenLineage) en local via Docker.
+# Commande pour démarrer : docker-compose up -d
+# Interface Airflow  : http://localhost:8080  (admin / admin)
+# Interface Marquez  : http://localhost:3000  (visualisation du lineage)
+
+version: '3.8'
+
+# VOLUMES PARTAGÉS
+
+volumes:
+  postgres_data:                                                # Stockage persistant de la base de données PostgreSQL d'Airflow
+  marquez_data:                                                 # Stockage persistant des données OpenLineage Marquez
+
+
+# SERVICES
+
+services:
+
+  # POSTGRESQL - Base de données interne d'Airflow                   
+
+  postgres:
+    image: postgres:14                                          # Image PostgreSQL version 14
+    environment:
+      POSTGRES_USER: airflow                                    # Utilisateur PostgreSQL pour Airflow
+      POSTGRES_PASSWORD: airflow                                # Mot de passe PostgreSQL
+      POSTGRES_DB: airflow                                      # Nom de la base de données Airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data                  # Persiste les données même après un docker-compose down
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]              # Vérifie que PostgreSQL est prêt avant de démarrer Airflow
+      interval: 10s                                             # Vérifie toutes les 10 secondes
+      retries: 5                                                # 5 tentatives maximum
+
+
+
+  # AIRFLOW - Orchestrateur de pipeline                              
+
+
+  airflow:
+    image: apache/airflow:2.9.0                                 # Image officielle Airflow version 2.9.0
+    depends_on:
+      postgres:
+        condition: service_healthy                              # Attend que PostgreSQL soit prêt avant de démarrer
+    
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor                  
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow  # Connexion à PostgreSQL
+
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'                    # Désactive les DAGs d'exemple fournis par Airflow
+      AIRFLOW__LINEAGE__BACKEND: openlineage                   # Active le lineage tracking via OpenLineage
+      OPENLINEAGE_URL: http://marquez:5000                     # URL du serveur Marquez où envoyer les événements lineage
+      OPENLINEAGE_NAMESPACE: canal_data_platform               # Namespace OpenLineage - identifie notre projet
+    
+    volumes:
+      - ./dags:/opt/airflow/dags                                # Monte le dossier local dags/ dans le conteneur
+      - ./dbt:/opt/airflow/dbt                                  # Monte le dossier local dbt/ dans le conteneur
+      - ./logs:/opt/airflow/logs                                # Monte le dossier logs pour accéder aux logs localement
+    
+    ports:
+      - "8080:8080"                                             # Expose l'interface web Airflow sur http://localhost:8080
+    
+    command: >
+      bash -c "
+
+        airflow db migrate &&                                     # Initialise la base de données Airflow (crée les tables nécessaires)   
+        
+        airflow users create --username admin --password admin --firstname Admin --lastname Admin --role Admin --email admin@canal.com &&
+        airflow webserver &
+        airflow scheduler
+
+      "                                                         # Initialise la base, crée l'admin, démarre le webserver et le scheduler
+
+
+
+  # MARQUEZ - Interface de visualisation OpenLineage                 
+
+
+  marquez:
+    image: marquezproject/marquez:latest                        # Image officielle Marquez
+    ports:
+      - "5000:5000"                                             # API OpenLineage. reçoit les événements d'Airflow et dbt
+      - "3000:3000"                                             # Interface web Marquez. visualisation du lineage
+    volumes:
+      - marquez_data:/usr/src/app/data                          # Persiste les données de lineage
