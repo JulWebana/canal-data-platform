@@ -2,7 +2,7 @@
 
 Projet personnel réalisé dans le cadre de ma montée en compétence en Data Engineering.
 
-L'idée de départ était simple : construire un pipeline de données complet sur AWS, 
+L'idée de départ était simple : construire un pipeline de données complet sur AWS 
 du début à la fin en utilisant les mêmes outils que les équipes data en entreprise. 
 
 Les données viennent de l'API TMDB (films et séries).
@@ -74,7 +74,7 @@ En résumé, le pipeline suit cette logique :
     |           |-- dim_languages.sql       Dimension des langues du catalogue
     |
     |-- dags/
-    |   |-- canal_pipeline.py     DAG Airflow qui orchestre Lambda, Glue et DBT dans le bon ordre
+    |   |-- canal_pipeline.py     DAG Airflow qui orchestre Lambda, Glue et dbt dans le bon ordre
     |
     |-- terraform/
     |   |-- main.tf               Configuration du provider AWS et des variables
