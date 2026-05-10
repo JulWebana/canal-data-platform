@@ -96,6 +96,7 @@ resource "aws_glue_job" "transform" {
   glue_version = "4.0"                                                         # Version de Glue (4.0 = Spark 3.3)
   worker_type  = "G.1X"                                                        # Type de worker — G.1X = 1 DPU, suffisant pour ce volume
   number_of_workers = 2                                                        # Nombre de workers Spark (minimum pour Glue)
+  connections = ["canal-redshift-connection"]                                  # Connexion Redshift ajoutée
 
   command {
 
@@ -119,6 +120,24 @@ resource "aws_glue_job" "transform" {
   tags = {
     Project   = "canal-data-platform"
     ManagedBy = "terraform"
+  }
+}
+
+# Connection glue vers redshift
+
+resource "aws_glue_connection" "redshift" {
+  name = "canal-redshift-connection"
+
+  connection_properties = {
+    JDBC_CONNECTION_URL = "jdbc:redshift://${aws_redshiftserverless_workgroup.canal.endpoint[0].address}:5439/canal_db"
+    USERNAME            = var.redshift_user
+    PASSWORD            = var.redshift_password
+  }
+
+  physical_connection_requirements {
+    availability_zone      = "eu-west-1a"
+    security_group_id_list = ["sg-01e5aadcc0619f287"]
+    subnet_id              = "subnet-07a44fc32e8c5d2ab"
   }
 }
 

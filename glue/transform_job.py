@@ -66,7 +66,7 @@ MOVIE_SCHEMA = StructType([                                                     
     StructField("vote_average", FloatType(), True),                         
     StructField("vote_count", IntegerType(), True),                           
     StructField("popularity", FloatType(), True),                               # Score de popularité TMDB
-    StructField("adult", BooleanType(), True),                                  # Contenu adulte ou non
+    StructField("adult", IntegerType(), True),                                  # Contenu adulte ou non
     StructField("original_language", StringType(), True),                   
 ])
 
@@ -105,6 +105,7 @@ def transform_movies(df):
         .filter(F.col("title").isNotNull())                                             # Supprime les films sans titre
         .filter(F.col("vote_count") >= 10)                                              # Garde uniquement les films avec au moins 10 votes
         .withColumn("release_date", F.to_date(F.col("release_date"), "yyyy-MM-dd"))     # Convertit la date string en type Date
+        .withColumn("adult", F.col("adult").cast("integer"))
         .withColumn("ingested_at", F.lit(TODAY))                                        # Ajoute la date d'ingestion pour traçabilité
         .withColumn("content_type", F.lit("movie"))                                     # Ajoute le type de contenu
         .dropDuplicates(["id"])                                                         # Supprime les doublons sur l'identifiant TMDB
@@ -130,6 +131,12 @@ def transform_series(df):
 
 def write_to_redshift(df, table_name: str):
     """Écrit un DataFrame Spark dans une table Redshift via JDBC."""
+
+    # Tronque toutes les colonnes string à 2000 caractères maximum
+    for field in df.schema.fields:
+        if str(field.dataType) == "StringType()":
+            df = df.withColumn(field.name, F.col(field.name).substr(1, 2000))
+
     df.write \
         .format("jdbc") \
         .option("url", REDSHIFT_URL) \
@@ -138,9 +145,9 @@ def write_to_redshift(df, table_name: str):
         .option("password", REDSHIFT_PASSWORD) \
         .option("driver", "com.amazon.redshift.jdbc42.Driver") \
         .option("tempdir", REDSHIFT_TMP_DIR) \
+        .option("createTableColumnTypes", "title VARCHAR(2000), original_title VARCHAR(2000), overview VARCHAR(65535), original_language VARCHAR(100), content_type VARCHAR(100), ingested_at VARCHAR(100)") \
         .mode("overwrite") \
         .save()
-    
     print(f"[Redshift] Table staging.{table_name} chargée avec {df.count()} lignes")        # Log du nombre de lignes chargées
 
 
