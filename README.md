@@ -33,44 +33,6 @@ Le pipeline suit une logique Bronze / Silver / Gold :
          |
     Data Lineage OpenLineage / Marquez
 
----
-
-## État du projet
-
-### En production sur AWS
-- Lambda `canal-tmdb-ingestion` : ingère 240 résultats par exécution
-- S3 `canal-data-platform-raw` : 24 fichiers JSON déposés
-- Redshift Serverless `canal-workgroup` : statut AVAILABLE
-- Glue Job `canal-transform-job` : déployé, connexion Redshift établie
-- Glue Connection `canal-redshift-connection` : VPC configuré
-- Terraform : 19 ressources déployées en une commande
-
-### En cours de finalisation
-- Job Glue : problème de compatibilité de types entre Spark et Redshift en cours de résolution
-- Airflow : DAG écrit et configuré pas encore lancé
-- OpenLineage / Marquez : configurés dans le docker-compose pas encore lancés
-- dbt : modèles écrits, connexion à Redshift à finaliser
-
----
-
-## Projet en production sur AWS
-
-### Lambda - canal-tmdb-ingestion
-![Lambda](screenshots/lambda.png)
-
-### S3 - canal-data-platform-raw
-![S3](screenshots/s3.png)
-
-### S3 - Données brutes ingérées
-![S3 raw data](screenshots/s3_raw_data.png)
-
-### Redshift Serverless - canal-workgroup
-![Redshift](screenshots/redshift.png)
-
-### Glue Job - canal-transform-job
-![Glue](screenshots/glue.png)
-
-![Glue détail](screenshots/glue_detail.png)
 
 ---
 
@@ -124,6 +86,46 @@ Le pipeline suit une logique Bronze / Silver / Gold :
     |-- docker-compose.yml        Lance Airflow et Marquez en local via Docker
 
 ---
+
+## État du projet
+
+### En production sur AWS
+- Lambda `canal-tmdb-ingestion` : ingère 240 résultats par exécution
+- S3 `canal-data-platform-raw` : 24 fichiers JSON déposés
+- Redshift Serverless `canal-workgroup` : statut AVAILABLE
+- Glue Job `canal-transform-job` : déployé, connexion Redshift établie
+- Glue Connection `canal-redshift-connection` : VPC configuré
+- Terraform : 19 ressources déployées en une commande
+
+### En cours de finalisation
+- Job Glue : problème de compatibilité de types entre Spark et Redshift en cours de résolution
+- Airflow : DAG écrit et configuré pas encore lancé
+- OpenLineage / Marquez : configurés dans le docker-compose pas encore lancés
+- dbt : modèles écrits, connexion à Redshift à finaliser
+
+---
+
+## Projet en production sur AWS
+
+### Lambda - canal-tmdb-ingestion
+![Lambda](screenshots/lambda.png)
+
+### S3 - canal-data-platform-raw
+![S3](screenshots/s3.png)
+
+### S3 - Données brutes ingérées
+![S3 raw data](screenshots/s3_raw_data.png)
+
+### Redshift Serverless - canal-workgroup
+![Redshift](screenshots/redshift.png)
+
+### Glue Job - canal-transform-job
+![Glue](screenshots/glue.png)
+
+![Glue détail](screenshots/glue_detail.png)
+
+---
+
 
 ## Lancer le projet en local
 
