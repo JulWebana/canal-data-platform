@@ -4,7 +4,7 @@ Projet personnel réalisé dans le cadre de ma montée en compétence en Data En
 
 L'idée de départ était simple : construire un pipeline de données complet sur AWS, 
 du début à la fin, en utilisant les mêmes outils que les équipes data en entreprise. 
-Les données viennent de l'API TMDB (The Movie Database) — films et séries — ce qui colle 
+Les données viennent de l'API TMDB (The Movie Database), films et séries, ce qui colle 
 bien au contexte d'une entreprise comme Canal+.
 
 ---
@@ -12,8 +12,8 @@ bien au contexte d'une entreprise comme Canal+.
 ## Ce que fait ce projet
 
 Les données de films et séries sont récupérées depuis l'API TMDB et stockées brutes dans S3.
-Elles sont ensuite transformées via AWS Glue, chargées dans Redshift, puis modélisées avec dbt 
-pour produire des tables analytiques exploitables. Tout le pipeline est orchestré par Airflow, 
+Elles sont ensuite transformées via AWS Glue, chargées dans Redshift puis modélisées avec dbt 
+pour produire des tables analytiques exploitables. Tout le pipeline est orchestré par Airflow 
 et chaque mouvement de données est tracé via OpenLineage (standard ouvert de traçabilité des données) 
 et visualisé dans Marquez (interface graphique qui affiche le chemin complet des données).
 
@@ -38,18 +38,18 @@ Le pipeline suit une logique Bronze / Silver / Gold :
 ## État du projet
 
 ### En production sur AWS
-- Lambda `canal-tmdb-ingestion` — ingère 240 résultats par exécution
-- S3 `canal-data-platform-raw` — 24 fichiers JSON déposés
-- Redshift Serverless `canal-workgroup` — statut AVAILABLE
-- Glue Job `canal-transform-job` — déployé, connexion Redshift établie
-- Glue Connection `canal-redshift-connection` — VPC configuré
-- Terraform — 19 ressources déployées en une commande
+- Lambda `canal-tmdb-ingestion` : ingère 240 résultats par exécution
+- S3 `canal-data-platform-raw` : 24 fichiers JSON déposés
+- Redshift Serverless `canal-workgroup` : statut AVAILABLE
+- Glue Job `canal-transform-job` : déployé, connexion Redshift établie
+- Glue Connection `canal-redshift-connection` : VPC configuré
+- Terraform : 19 ressources déployées en une commande
 
 ### En cours de finalisation
-- Job Glue — problème de compatibilité de types entre Spark et Redshift en cours de résolution
-- Airflow — DAG écrit et configuré, pas encore lancé
-- OpenLineage / Marquez — configurés dans le docker-compose, pas encore lancés
-- dbt — modèles écrits, connexion à Redshift à finaliser
+- Job Glue : problème de compatibilité de types entre Spark et Redshift en cours de résolution
+- Airflow : DAG écrit et configuré pas encore lancé
+- OpenLineage / Marquez : configurés dans le docker-compose pas encore lancés
+- dbt : modèles écrits, connexion à Redshift à finaliser
 
 ---
 
@@ -61,7 +61,7 @@ Le pipeline suit une logique Bronze / Silver / Gold :
 - **Amazon Redshift Serverless** : entrepôt de données analytique
 - **dbt** : modélisation SQL, tests de qualité des données
 - **Apache Airflow** : orchestration du pipeline
-- **OpenLineage / Marquez** : data lineage — traçabilité des données
+- **OpenLineage / Marquez** : data lineage (traçabilité des données)
 - **Terraform** : infrastructure as code pour provisionner les ressources AWS
 - **Python** : Lambda, Glue, tests unitaires
 
@@ -118,14 +118,14 @@ Le pipeline suit une logique Bronze / Silver / Gold :
 
 Créer un fichier `.env` à la racine du projet :
 
-    TMDB_API_KEY=ta_clé_ici
-    S3_BUCKET=canal-data-platform-raw
+    TMDB_API_KEY = votre_clé_ici
+    S3_BUCKET = canal-data-platform-raw
 
 Créer un fichier `terraform/terraform.tfvars` :
 
-    tmdb_api_key      = "ta_clé_ici"
+    tmdb_api_key      = "votre_clé_ici"
     redshift_user     = "admin"
-    redshift_password = "ton_mot_de_passe"
+    redshift_password = "votre_mot_de_passe"
 
 ### 2. Tester la Lambda en local
 
