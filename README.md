@@ -33,6 +33,11 @@ Le pipeline suit une logique Bronze / Silver / Gold :
          |
     Data Lineage OpenLineage / Marquez
 
+---
+
+## Architecture
+
+![Architecture](screenshots/architecture.png)
 
 ---
 
@@ -87,12 +92,6 @@ Le pipeline suit une logique Bronze / Silver / Gold :
 
 ---
 
-## Architecture
-
-![Architecture](screenshots/architecture.png)
-
----
-
 ## État du projet
 
 ### En production sur AWS
@@ -131,7 +130,6 @@ Le pipeline suit une logique Bronze / Silver / Gold :
 ![Glue détail](screenshots/glue_detail.png)
 
 ---
-
 
 ## Lancer le projet en local
 
