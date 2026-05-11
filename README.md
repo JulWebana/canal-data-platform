@@ -87,6 +87,12 @@ Le pipeline suit une logique Bronze / Silver / Gold :
 
 ---
 
+## Architecture
+
+![Architecture](screenshots/architecture.png)
+
+---
+
 ## État du projet
 
 ### En production sur AWS
