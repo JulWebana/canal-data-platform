@@ -53,6 +53,27 @@ Le pipeline suit une logique Bronze / Silver / Gold :
 
 ---
 
+## Projet en production sur AWS
+
+### Lambda — canal-tmdb-ingestion
+![Lambda](screenshots/lambda.png)
+
+### S3 — canal-data-platform-raw
+![S3](screenshots/s3.png)
+
+### S3 — Données brutes ingérées
+![S3 raw data](screenshots/s3_raw_data.png)
+
+### Redshift Serverless — canal-workgroup
+![Redshift](screenshots/redshift.png)
+
+### Glue Job — canal-transform-job
+![Glue](screenshots/glue.png)
+
+![Glue détail](screenshots/glue_detail.png)
+
+---
+
 ## Stack technique
 
 - **AWS Lambda** : ingestion des données depuis l'API TMDB vers S3
